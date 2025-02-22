@@ -211,6 +211,28 @@ const getNotificationsByOrder = async (req, res) => {
       res.status(500).json({ message: "Error rejecting order", error });
     }
   };
+
+  const getUnreadNotificationsCount = async (req, res) => {
+    try {
+        const businessId = req.user.id;
+        
+        const count = await Notification.countDocuments({ 
+            recipient: businessId,
+            isRead: false
+        });
+        
+        console.log("Unread notifications count:", count);
+        
+        res.status(200).json({ count });
+        
+    } catch (error) {
+        console.error("Error fetching unread notifications count:", error);
+        res.status(500).json({ 
+            message: "Error fetching unread notifications count",
+            error: error.message 
+        });
+    }
+};
   
 
 module.exports = {
@@ -219,5 +241,6 @@ module.exports = {
     draftOrder,
     markNotificationRead,
     getNotificationsByOrder,
-    rejectOrderNotification
+    rejectOrderNotification,
+    getUnreadNotificationsCount
 };
