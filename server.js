@@ -11,8 +11,6 @@ const businessRoutes = require('./Routes/businessRoutes.js');
 const placeOrderRoutes = require('./Routes/placeOrderRoutes.js');
 const ordersRoutes = require('./Routes/ordersRoutes.js');
 const cartRoutes = require('./Routes/cartRoutes.js');
-
-const callRoutes = require('./Routes/callRoutes.js');
 const notifRoutes = require('./Routes/notifRoutes.js');
 const inviRoutes = require('./Routes/inventoryRoutes.js')
 const app = express();
@@ -40,8 +38,6 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/api/place-order', placeOrderRoutes);
 app.use('/api/orders', ordersRoutes);
 app.use('/api/cart', cartRoutes);
-
-app.use('/api/call', callRoutes);
 app.use('/api/notif', notifRoutes);
 app.use('/api/invi', inviRoutes);
 // Start server
