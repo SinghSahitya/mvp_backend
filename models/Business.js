@@ -8,6 +8,7 @@ const businessSchema = new mongoose.Schema({
     ownerImage: { type: String, required: false },
     location: { type: String, required: true },
     businessImage: { type: String, required: false },
+    refreshToken: { type: String, required: false },
     inventory: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Inventory',

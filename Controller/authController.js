@@ -54,12 +54,16 @@ exports.verifyOtp = async (req, res) => {
       const token = jwt.sign(
         { id: user._id, phoneNumber: decodedToken.phone_number },
         process.env.JWT_SECRET,
-        { expiresIn: "1h" }
+        { expiresIn: "7d" }
       );
 
+      const accessToken = jwt.sign({ id: user._id, phoneNumber: decodedToken.phone_number }, process.env.JWT_SECRET, { expiresIn: "1h" });
+      const refreshToken = jwt.sign({ id: user._id, phoneNumber: decodedToken.phone_number }, process.env.JWT_REFRESH_SECRET, { expiresIn: "7d" });
+      user.refreshToken = refreshToken;
+      await user.save();
       const bname = user.businessName;
       console.log(bname, phoneNumber);
-      res.json({ message: "Login successful", token, phoneNumber, bname });
+      res.json({ message: "Login successful", token, phoneNumber, bname,accessToken, refreshToken });
     } catch (err) {
       res.status(400).json({ message: "Invalid OTP", error: err.message });
     }
@@ -100,7 +104,7 @@ exports.signup = async (req, res) => {
     // }
     // const validatedAddress = gstResponse.data.data.pradr.adr;
 
-    
+      let refreshToken = null;
       // Create a new Business document
       const newBusiness = new Business({
         gstin,
@@ -109,6 +113,7 @@ exports.signup = async (req, res) => {
         contact,
         location,
         businessType,
+        refreshToken
       });
   
       await newBusiness.save();
@@ -120,11 +125,41 @@ exports.signup = async (req, res) => {
         { expiresIn: "1h" }
       );
 
-      res.status(201).json({ message: "Signup successful", token });
+      const accessToken = jwt.sign({ id: newBusiness._id, phoneNumber: newBusiness.contact }, process.env.JWT_SECRET, { expiresIn: "1h" });
+      refreshToken = jwt.sign({ id: newBusiness._id, phoneNumber: newBusiness.contact }, process.env.JWT_REFRESH_SECRET, { expiresIn: "7d" });
+
+      newBusiness.refreshToken = refreshToken;
+      await newBusiness.save();
+
+      res.status(201).json({ message: "Signup successful", token, accessToken, refreshToken  });
     } catch (err) {
       console.error("Error during signup:", err);
       res.status(500).json({ message: "Signup failed", error: err.message });
     }
   };
 
+
+  exports.refreshToken = async (req, res) => {
+    const { refreshToken } = req.body;
+    
+    try {
+      const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+      const user = await Business.findById(decoded.id);
+  
+      if (!user || user.refreshToken !== refreshToken) {
+        return res.status(401).json({ message: "Invalid refresh token" });
+      }
+  
+      const newAccessToken = jwt.sign({ id: user._id,phoneNumber:decoded.phone_number  }, process.env.JWT_SECRET, { expiresIn: "1h" });
+      const newRefreshToken = jwt.sign({ id: user._id,phoneNumber:decoded.phone_number }, process.env.JWT_REFRESH_SECRET, { expiresIn: "7d" });
+  
+      user.refreshToken = newRefreshToken;
+      await user.save();
+  
+      res.json({ accessToken: newAccessToken, refreshToken: newRefreshToken });
+    } catch (error) {
+      res.status(401).json({ message: "Invalid refresh token" });
+    }
+  };
+  
 
