@@ -221,8 +221,6 @@ const getNotificationsByOrder = async (req, res) => {
             isRead: false
         });
         
-        console.log("Unread notifications count:", count);
-        
         res.status(200).json({ count });
         
     } catch (error) {
