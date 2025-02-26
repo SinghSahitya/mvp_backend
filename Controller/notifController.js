@@ -99,7 +99,7 @@ const getNotifications = async (req, res) => {
     try {
         const businessId = req.user.id;
         const { filter } = req.query;
-        console.log("GETTING NOTIF");
+      
         let query = { 
             $or: [
                 { recipient: businessId },
@@ -129,7 +129,7 @@ const getNotifications = async (req, res) => {
             })
             .sort({ createdAt: -1 });
 
-        console.log(notifications);
+      
         res.status(200).json(notifications);
         
     } catch (error) {
@@ -169,7 +169,7 @@ const getNotificationsByOrder = async (req, res) => {
       const notifications = await Notification.find({ 
         order: req.params.id 
       });
-      console.log(notifications);
+   
       res.status(200).json({ data:notifications });
     } catch (error) {
       res.status(500).json({ 
