@@ -1,0 +1,1 @@
+RUN: E:/Softwares/node/node app.js

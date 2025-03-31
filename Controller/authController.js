@@ -1,7 +1,8 @@
 const admin = require('../config/firebaseConfig');
 const jwt = require('jsonwebtoken');
 const Business = require('../models/Business');
-
+const axios = require('axios');
+const { is } = require('date-fns/locale');
 // Login Handler
 exports.login = async (req, res) => {
     const { phoneNumber } = req.body;
@@ -63,7 +64,7 @@ exports.verifyOtp = async (req, res) => {
       await user.save();
       const bname = user.businessName;
       console.log(bname, phoneNumber);
-      res.json({ message: "Login successful", token, phoneNumber, bname,accessToken, refreshToken });
+      res.json({ message: "Login successful", token, phoneNumber, bname,accessToken, refreshToken, isReady: user.isReady, isImported: user.isImported });
     } catch (err) {
       res.status(400).json({ message: "Invalid OTP", error: err.message });
     }
@@ -94,15 +95,15 @@ exports.signup = async (req, res) => {
       }
 
     // Validate the GST number using the external API
-    // const apiKey = process.env.GSTIN_API_KEY; // Your API key stored in .env
-    // const gstApiUrl = `http://sheet.gstincheck.co.in/check/${apiKey}/${gstin}`;
+      const apiKey = process.env.GSTIN_API_KEY; // Your API key stored in .env
+      const gstApiUrl = `http://sheet.gstincheck.co.in/check/${apiKey}/${gstin}`;
 
-    // const gstResponse = await axios.get(gstApiUrl);
-
-    // if (!gstResponse.data.flag) {
-    //   return res.status(400).json({ message: "Invalid GST number" });
-    // }
-    // const validatedAddress = gstResponse.data.data.pradr.adr;
+      const gstResponse = await axios.get(gstApiUrl);
+      console.log("GST Response: ", gstResponse.data);
+      if (!gstResponse.data.flag) {
+        return res.status(400).json({ message: "Invalid GST number" });
+      }
+      const validatedAddress = gstResponse.data.data.pradr.adr;
 
       let refreshToken = null;
       // Create a new Business document
@@ -111,9 +112,10 @@ exports.signup = async (req, res) => {
         businessName,
         ownerName,
         contact,
-        location,
+        validatedAddress,
         businessType,
         refreshToken
+
       });
   
       await newBusiness.save();
@@ -131,7 +133,7 @@ exports.signup = async (req, res) => {
       newBusiness.refreshToken = refreshToken;
       await newBusiness.save();
 
-      res.status(201).json({ message: "Signup successful", token, accessToken, refreshToken  });
+      res.status(201).json({ message: "Signup successful", token, accessToken, refreshToken,isReady: newBusiness.isReady, isImported: newBusiness.isImported  });
     } catch (err) {
       console.error("Error during signup:", err);
       res.status(500).json({ message: "Signup failed", error: err.message });
@@ -155,8 +157,8 @@ exports.signup = async (req, res) => {
   
       user.refreshToken = newRefreshToken;
       await user.save();
-  
-      res.json({ accessToken: newAccessToken, refreshToken: newRefreshToken });
+      console.log("user", user);
+      res.json({ accessToken: newAccessToken, refreshToken: newRefreshToken, isReady: user.isReady, isImported: user.isImported });
     } catch (error) {
       res.status(401).json({ message: "Invalid refresh token" });
     }

@@ -89,7 +89,7 @@ const getOrderById = async (req, res) => {
     let order = await Sale.findOne({ _id: orderId })
       .populate({
         path: "products.product",
-        select: "name image_url description", // Populate product details
+        select: "name image_url description cgst sgst gst", // Populate product details
       })
       .populate({
         path: "seller",
@@ -116,7 +116,7 @@ const getOrderById = async (req, res) => {
         })
         .populate({
           path: "products.product",
-          select: "name  image_url description", // Populate product details
+          select: "name  image_url description  cgst sgst gst", // Populate product details
         })
         .populate({
           path: "buyer",
@@ -155,7 +155,7 @@ const getDraftOrderDetails = async (req, res) => {
           })
           .populate({
               path: "products.product",
-              select: "name image_url description unit" // Populate product details
+              select: "name image_url description unit cgst sgst gst" // Populate product details
           });
 
       if (!order) {
@@ -200,7 +200,7 @@ const updateDraftOrderDetails = async (req, res) => {
           { new: true, runValidators: true } // Return the updated document and run validators
       ).populate({
         path: "products.product",
-        select: "name image_url description unit" // Populate product details
+        select: "name image_url description unit  cgst sgst gst" // Populate product details
     });
 
       if (!updatedOrder) {

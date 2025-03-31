@@ -158,7 +158,7 @@ const getBusinessesByProduct = async (req, res) => {
         createdAt: "$businessDetails.createdAt"
       }}
     ]);
-
+    console.log("Businesses found:", businesses);
     res.status(200).json(businesses);
   } catch (error) {
     console.error("Error fetching businesses by product:", error);

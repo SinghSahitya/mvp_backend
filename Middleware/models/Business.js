@@ -15,8 +15,6 @@ const businessSchema = new mongoose.Schema({
         required: false,
     },
     businessType: { type: String, required: false },
-    isImported: { type: Boolean, default: false },
-    isReady: { type: Boolean, default: false },
     report: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Report',

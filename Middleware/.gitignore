@@ -1,0 +1,9 @@
+node_modules
+templates
+.env
+config/a1b016b8-e589-4914-9760-8ccc2e089f4c_private.json
+config/serviceAccountKey.json
+uploads
+dummy_product.xlsx
+dummydata.js
+dummyprod.js

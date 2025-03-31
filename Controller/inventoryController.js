@@ -3,6 +3,48 @@ const Inventory = require("../models/Inventory");
 const Business = require("../models/Business");
 const Expense = require("../models/Expense")
 
+exports.updateItemPricing = async (req, res) => {
+    try {
+      const { generalizedPrice, itemId } = req.body;
+      console.log("Updating pricing:", generalizedPrice, itemId);
+  
+      // Validate input
+      if (!itemId || generalizedPrice === undefined) {
+        res.status(400);
+        throw new Error("Missing item ID or generalized price value");
+      }
+  
+      // Parse the price to ensure it's a number
+      const parsedPrice = parseFloat(generalizedPrice);
+      if (isNaN(parsedPrice)) {
+        res.status(400);
+        throw new Error("Invalid price value");
+      }
+  
+      // Find and update the item
+      const updatedItem = await Inventory.findByIdAndUpdate(
+        itemId,
+        { gen_price: parsedPrice },
+        { new: true } // Return the updated document
+      );
+  
+      console.log("PRICE UPDATED: ", updatedItem);
+  
+      if (!updatedItem) {
+        res.status(404);
+        throw new Error("Item not found");
+      }
+  
+      res.status(200).json({
+        success: true,
+        item: updatedItem,
+      });
+    } catch (error) {
+      return res.status(500).json({ message: "Internal server error", error: error.message });
+    }
+  };
+  
+
 exports.fetchInventoryWithExpenseRate = async (req, res) => {
     try {
         const businessId = req.user.id;

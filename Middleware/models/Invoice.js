@@ -17,8 +17,7 @@ const invoiceSchema = new mongoose.Schema({
     invoiceLink: {
         type: String,
         required: true,
-    },
-    s3Key: { type: String, required: true }
+    }
 }, { timestamps: true });
 
 // Create the model
